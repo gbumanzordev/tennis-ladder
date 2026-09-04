@@ -33,8 +33,8 @@ npm run dev
 A hosted project will not let you insert into `auth.users`, so the accounts are created through the
 app and only the ladder data is seeded:
 
-1. Run `supabase/migrations/0001_init.sql` against the project (SQL editor, or `supabase link` +
-   `supabase db push`).
+1. Apply the migration: `supabase link --project-ref <ref>` then `supabase db push`. Pasting
+   `supabase/migrations/0001_init.sql` into the dashboard SQL editor works too.
 2. Point `.env` at the project URL and anon key, then `npm run dev`.
 3. Sign up `alice@test.dev` and `bob@test.dev` at `/signup` (password `password123`, display names
    Alice and Bob).
@@ -50,8 +50,8 @@ Password `password123` for both:
 | `alice@test.dev` | "Club Ladder" with 5 players and 10 matches |
 | `bob@test.dev` | "Sunday Doubles", empty |
 
-Other scripts: `npm run build`, `npm run lint`, `npm run format`, and `npm run db:types` to regenerate
-`src/types/database.ts` against the running local database.
+Other scripts: `npm run build`, `npm run lint`, `npm run format`, and `npm run db:types` /
+`npm run db:types:remote` to regenerate `src/types/database.ts` from the local or the linked database.
 
 ## Standings rules
 
