@@ -30,16 +30,19 @@ npm run dev
 
 ### Hosted Supabase project
 
-A hosted project will not let you insert into `auth.users`, so the accounts are created through the
-app and only the ladder data is seeded:
+```bash
+npm install
+supabase link --project-ref <project-ref>
+supabase db push                                          # applies supabase/migrations/
+supabase db query -f supabase/seed.sql --linked           # the two demo accounts
+supabase db query -f supabase/seed_data.sql --linked      # their ladders, players and matches
+cp .env.example .env                                      # project URL + anon key from the dashboard
+npm run dev
+```
 
-1. Apply the migration: `supabase link --project-ref <ref>` then `supabase db push`. Pasting
-   `supabase/migrations/0001_init.sql` into the dashboard SQL editor works too.
-2. Point `.env` at the project URL and anon key, then `npm run dev`.
-3. Sign up `alice@test.dev` and `bob@test.dev` at `/signup` (password `password123`, display names
-   Alice and Bob).
-4. Run `supabase/seed_data.sql` in the SQL editor. It resolves both owners by email, so it does not
-   care how the accounts were created. Skip `seed.sql` entirely; it is local only.
+`db query` runs as `postgres`, so the seeds create the accounts directly and no email confirmation is
+involved. Signing the demo accounts up through `/signup` instead does not work on a hosted project:
+its email validator rejects `@test.dev`.
 
 ### Seeded accounts
 

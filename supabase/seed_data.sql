@@ -17,15 +17,16 @@ values
     )
 on conflict (id) do nothing;
 
--- Bruno is inserted before Ana on purpose: they end up tied, so the ordering of the
--- standings table is only correct if the name tiebreak is applied.
-insert into public.players (id, ladder_id, name)
+-- Bruno is created before Ana on purpose: they end up tied, so the ordering of the standings
+-- table is only correct if the name tiebreak is applied. created_at is staggered because the
+-- players are listed in that order, and a shared timestamp would make the order arbitrary.
+insert into public.players (id, ladder_id, name, created_at)
 values
-    ('cccccccc-0000-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000001', 'Bruno'),
-    ('cccccccc-0000-4000-8000-000000000002', 'aaaaaaaa-0000-4000-8000-000000000001', 'Ana'),
-    ('cccccccc-0000-4000-8000-000000000003', 'aaaaaaaa-0000-4000-8000-000000000001', 'Carla'),
-    ('cccccccc-0000-4000-8000-000000000004', 'aaaaaaaa-0000-4000-8000-000000000001', 'Diego'),
-    ('cccccccc-0000-4000-8000-000000000005', 'aaaaaaaa-0000-4000-8000-000000000001', 'Elena')
+    ('cccccccc-0000-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000001', 'Bruno', now() - interval '5 minutes'),
+    ('cccccccc-0000-4000-8000-000000000002', 'aaaaaaaa-0000-4000-8000-000000000001', 'Ana', now() - interval '4 minutes'),
+    ('cccccccc-0000-4000-8000-000000000003', 'aaaaaaaa-0000-4000-8000-000000000001', 'Carla', now() - interval '3 minutes'),
+    ('cccccccc-0000-4000-8000-000000000004', 'aaaaaaaa-0000-4000-8000-000000000001', 'Diego', now() - interval '2 minutes'),
+    ('cccccccc-0000-4000-8000-000000000005', 'aaaaaaaa-0000-4000-8000-000000000001', 'Elena', now() - interval '1 minute')
 on conflict (id) do nothing;
 
 -- Elena plays no matches.

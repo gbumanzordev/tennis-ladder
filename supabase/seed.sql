@@ -4,9 +4,13 @@
 -- Profiles are created by the on_auth_user_created trigger.
 -- alice@test.dev / bob@test.dev, password "password123".
 
+-- The token columns are set to '' rather than left null: Auth reads them as non-nullable
+-- strings, and a null there makes every sign-in fail with "Database error querying schema".
 insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-    raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change_token_current,
+    email_change, phone_change, phone_change_token, reauthentication_token
 )
 values
     (
@@ -14,14 +18,16 @@ values
         '11111111-1111-1111-1111-111111111111',
         'authenticated', 'authenticated', 'alice@test.dev',
         extensions.crypt('password123', extensions.gen_salt('bf')), now(),
-        '{"provider":"email","providers":["email"]}', '{"display_name":"Alice"}', now(), now()
+        '{"provider":"email","providers":["email"]}', '{"display_name":"Alice"}', now(), now(),
+        '', '', '', '', '', '', '', ''
     ),
     (
         '00000000-0000-0000-0000-000000000000',
         '22222222-2222-2222-2222-222222222222',
         'authenticated', 'authenticated', 'bob@test.dev',
         extensions.crypt('password123', extensions.gen_salt('bf')), now(),
-        '{"provider":"email","providers":["email"]}', '{"display_name":"Bob"}', now(), now()
+        '{"provider":"email","providers":["email"]}', '{"display_name":"Bob"}', now(), now(),
+        '', '', '', '', '', '', '', ''
     );
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
