@@ -15,16 +15,35 @@ There is deliberately **no state management library and no test tooling**. Addin
 
 ## Setup
 
-Requires Node 20+, Docker, and the [Supabase CLI](https://supabase.com/docs/guides/local-development).
+Requires Node 20+.
+
+### Local Supabase (recommended)
+
+Also requires Docker and the [Supabase CLI](https://supabase.com/docs/guides/local-development).
 
 ```bash
 npm install
-supabase start          # boots Postgres, runs supabase/migrations, applies supabase/seed.sql
+supabase start          # runs supabase/migrations, then seed.sql and seed_data.sql
 cp .env.example .env    # fill in the URL and anon key printed by `supabase start`
 npm run dev
 ```
 
-Seeded accounts (password `password123` for both):
+### Hosted Supabase project
+
+A hosted project will not let you insert into `auth.users`, so the accounts are created through the
+app and only the ladder data is seeded:
+
+1. Run `supabase/migrations/0001_init.sql` against the project (SQL editor, or `supabase link` +
+   `supabase db push`).
+2. Point `.env` at the project URL and anon key, then `npm run dev`.
+3. Sign up `alice@test.dev` and `bob@test.dev` at `/signup` (password `password123`, display names
+   Alice and Bob).
+4. Run `supabase/seed_data.sql` in the SQL editor. It resolves both owners by email, so it does not
+   care how the accounts were created. Skip `seed.sql` entirely; it is local only.
+
+### Seeded accounts
+
+Password `password123` for both:
 
 | Email | Data |
 |---|---|
@@ -57,7 +76,8 @@ The standings table is derived on the client from the players and matches of a l
 - `src/router/` — route table plus the auth guard.
 - `src/lib/supabase.ts` — the single Supabase client instance.
 - `src/types/` — `database.ts` is generated from the schema; `domain.ts` is the hand-written app vocabulary.
-- `supabase/` — `migrations/0001_init.sql` (tables, signup trigger, RLS policies) and `seed.sql`.
+- `supabase/` — `migrations/0001_init.sql` (tables, signup trigger, RLS policies), `seed.sql`
+  (the two demo accounts, local only) and `seed_data.sql` (their ladders, players and matches).
 
 ## Routes
 
