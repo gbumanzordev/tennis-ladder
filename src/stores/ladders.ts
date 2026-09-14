@@ -16,18 +16,22 @@ export const useLadderStore = defineStore('ladders', () => {
     const selecledLadder = computed(() =>
         ladders.value?.find((ladder) => ladder.id === ladderId.value),
     );
+    const isLoading = computed(() => loading.value);
 
     const ladders = ref<Ladder[]>([]);
 
     const load = async () => {
         loading.value = true;
         error.value = null;
+        console.log(loading.value, 'from load');
         try {
             ladders.value = await laddersApi.list();
         } catch (err) {
             error.value = (err as Error).message;
         } finally {
+            console.log('gets to finally');
             loading.value = false;
+            console.log(loading.value);
         }
     };
 
@@ -66,6 +70,7 @@ export const useLadderStore = defineStore('ladders', () => {
     return {
         ladderId,
         selecledLadder,
+        isLoading,
         ladders,
         load,
         create,
