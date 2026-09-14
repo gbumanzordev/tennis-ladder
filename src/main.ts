@@ -2,8 +2,18 @@ import { createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
 import { router } from './router';
-import { useAuth } from './composables/useAuth';
+import { createPinia } from 'pinia';
+import { useAuthStore } from './stores/auth.ts';
 
-useAuth().start();
+const app = createApp(App);
 
-createApp(App).use(router).mount('#app');
+const pinia = createPinia();
+
+app.use(pinia);
+
+const authStore = useAuthStore(pinia);
+
+await authStore.init();
+
+app.use(router);
+app.mount('#app');

@@ -1,25 +1,65 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StandingsTable from '../components/standings/StandingsTable.vue';
-import { useMatches } from '../composables/useMatches';
-import { usePlayers } from '../composables/usePlayers';
 import { useStandings } from '../composables/useStandings';
+import { useMatchStore } from '@src/stores/matches.ts';
+import { usePlayerStore } from '@src/stores/players.ts';
+import { useLadderStore } from '@src/stores/ladders.ts';
+
+import { storeToRefs } from 'pinia';
 
 const route = useRoute();
-const ladderId = route.params.id as string;
 
-const { players, load: loadPlayers } = usePlayers(ladderId);
-const { matches, load: loadMatches } = useMatches(ladderId);
+const ladderStore = useLadderStore();
+const matchStore = useMatchStore();
+const playerStore = usePlayerStore();
+
+watch(
+    () => route.params.id,
+    (newId) => {
+        ladderStore.ladderId = newId.toString();
+        playerStore.load();
+        matchStore.load();
+    },
+);
+
+const {
+    players,
+    error: playersError,
+    loading: playersLoading,
+} = storeToRefs(playerStore);
+const {
+    matches,
+    error: matchesError,
+    loading: matchesLoading,
+} = storeToRefs(matchStore);
 
 const standings = useStandings(players, matches);
 
+const loading = () => playersLoading.value || matchesLoading.value;
+
 onMounted(() => {
-    loadPlayers();
-    loadMatches();
+    if (route.params.id) {
+        ladderStore.ladderId = route.params.id.toString();
+        playerStore.load();
+    }
 });
 </script>
 
 <template>
-    <StandingsTable :rows="standings" />
+    <p
+        v-if="playersError || matchesError"
+        role="alert"
+        class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+    >
+        {{ playersError ?? matchesError }}
+    </p>
+    <p v-if="loading()" class="text-sm text-slate-500">Loading standing...</p>
+    <EmptyState
+        v-else-if="players.length === 0"
+        title="No players yet"
+        description="Add the first player"
+    />
+    <StandingsTable v-else :rows="standings" />
 </template>

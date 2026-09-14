@@ -55,7 +55,7 @@ describe('computeStanding', () => {
                 played: 0,
                 won: 0,
                 lost: 0,
-                winPercent: NaN, //should be 0
+                winPercent: 0, //should be 0 issue in NaN
                 points: 0,
             },
         ]);
@@ -90,7 +90,10 @@ describe('computeStanding', () => {
     });
 
     test('Player with two win and one loss', () => {
-        const row = computeStandings([playerA, playerB], [match1, match2, match3]);
+        const row = computeStandings(
+            [playerA, playerB],
+            [match1, match2, match3],
+        );
         expect(row[0]).toMatchObject({
             rank: 1,
             playerId: 'p1',
@@ -104,8 +107,14 @@ describe('computeStanding', () => {
     });
 
     test('orders players by points desc', () => {
-        const standings = computeStandings([playerA, playerB], [match1, match2, match3]);
-        expect(standings.map((row) => row.name)).toEqual(['Player A', 'Player B']);
+        const standings = computeStandings(
+            [playerA, playerB],
+            [match1, match2, match3],
+        );
+        expect(standings.map((row) => row.name)).toEqual([
+            'Player A',
+            'Player B',
+        ]);
     });
 
     test('win percentage when points are tied', () => {
@@ -133,16 +142,28 @@ describe('computeStanding', () => {
         ];
         matches.push(match1);
         const standings = computeStandings([playerA, playerB], matches);
-        expect(standings.map((row) => row.name)).toEqual(['Player A', 'Player B']);
+        expect(standings.map((row) => row.name)).toEqual([
+            'Player A',
+            'Player B',
+        ]);
     });
 
     test('win percentage when points are tied', () => {
-        const standings = computeStandings([playerA, playerB], [match1, match3]);
-        expect(standings.map((row) => row.name)).toEqual(['Player A', 'Player B']);
+        const standings = computeStandings(
+            [playerA, playerB],
+            [match1, match3],
+        );
+        expect(standings.map((row) => row.name)).toEqual([
+            'Player A',
+            'Player B',
+        ]);
     });
 
     test('ranks according to the final ordering', () => {
-        const standings = computeStandings([playerA, playerB], [match1, match3]);
+        const standings = computeStandings(
+            [playerA, playerB],
+            [match1, match3],
+        );
         expect(standings[0].rank).toBe(1);
         expect(standings[1].rank).toBe(2);
     });

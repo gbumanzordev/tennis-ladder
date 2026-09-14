@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
+
 import LadderView from '../views/LadderView.vue';
+import { useAuthStore } from '@src/stores/auth.ts';
 
 const routes: RouteRecordRaw[] = [
     { path: '/', redirect: '/ladders' },
@@ -24,12 +25,15 @@ export const router = createRouter({
     routes,
 });
 
-router.beforeEach((to) => {
-    const { user } = useAuth();
+router.beforeEach(async (to) => {
+    const authStore = useAuthStore();
 
-    if (!to.meta.public && !user.value) {
+    await authStore.init();
+
+    if (!to.meta.public && !authStore.isAuthenticated) {
         return { path: '/login', query: { redirect: to.fullPath } };
     }
-
     return true;
 });
+
+export default router;

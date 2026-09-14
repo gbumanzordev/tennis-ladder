@@ -29,6 +29,27 @@ export const create = async (match: NewMatch): Promise<Match> => {
     return data;
 };
 
+export const update = async (
+    id: string,
+    match: Omit<NewMatch, 'ladderId'>,
+): Promise<Match> => {
+    const { data, error } = await supabase
+        .from('matches')
+        .update({
+            player_a_id: match.playerAId,
+            player_b_id: match.playerBId,
+            winner_id: match.winnerId,
+            score: match.score,
+            played_on: match.playedOn,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};
+
 export const remove = async (id: string): Promise<void> => {
     const { error } = await supabase.from('matches').delete().eq('id', id);
     if (error) throw error;

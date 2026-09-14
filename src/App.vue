@@ -2,16 +2,21 @@
 import { computed } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import BaseButton from './components/ui/BaseButton.vue';
-import { useAuth } from './composables/useAuth';
+import { useAuthStore } from './stores/auth.ts';
+import { storeToRefs } from 'pinia';
+
+const authUser = useAuthStore();
+const { displayName } = storeToRefs(authUser);
+
 
 const route = useRoute();
 const router = useRouter();
-const { user, displayName, logout } = useAuth();
 
-const showHeader = computed(() => Boolean(user.value) && !route.meta.public);
+
+const showHeader = computed(() => Boolean(authUser.isAuthenticated) && !route.meta.public);
 
 const onSignOut = async () => {
-    await logout();
+    await authUser.signOutUser();
     router.replace('/login');
 };
 </script>

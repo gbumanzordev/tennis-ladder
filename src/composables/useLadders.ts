@@ -1,12 +1,14 @@
 import { ref } from 'vue';
 import * as laddersApi from '../api/ladders';
 import type { Ladder } from '../types/domain';
-import { useAuth } from './useAuth';
+import { useAuthStore } from '@src/stores/auth';
+import { storeToRefs } from 'pinia';
 
 const ladders = ref<Ladder[]>([]);
 
 export const useLadders = () => {
-    const { user } = useAuth();
+    const store = useAuthStore();
+    const { user } = storeToRefs(store);
     const loading = ref(false);
     const error = ref<string | null>(null);
 
@@ -25,6 +27,7 @@ export const useLadders = () => {
 
     const create = async (name: string) => {
         if (!user.value) {
+            console.log('nouservalue');
             return;
         }
         try {

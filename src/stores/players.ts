@@ -2,9 +2,9 @@ import { ref } from 'vue';
 import * as playersApi from '../api/players';
 import type { Player } from '../types/domain';
 import { useLadderStore } from '@src/stores/ladders';
-import { storeToRefs } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 
-export const usePlayers = () => {
+export const usePlayerStore = defineStore('player', () => {
     const ladderStore = useLadderStore();
     const { ladderId } = storeToRefs(ladderStore);
     const players = ref<Player[]>([]);
@@ -18,7 +18,6 @@ export const usePlayers = () => {
             players.value = await playersApi.listByLadder(ladderId.value);
         } catch (err) {
             error.value = (err as Error).message;
-            console.error(err);
         } finally {
             loading.value = false;
         }
@@ -30,7 +29,7 @@ export const usePlayers = () => {
             await playersApi.create(ladderId.value, name);
             await load();
         } catch (err) {
-            console.error(err);
+            error.value = (err as Error).message;
         }
     };
 
@@ -39,7 +38,7 @@ export const usePlayers = () => {
             await playersApi.rename(id, name);
             await load();
         } catch (err) {
-            console.error(err);
+            error.value = (err as Error).message;
         }
     };
 
@@ -48,9 +47,17 @@ export const usePlayers = () => {
             await playersApi.remove(id);
             await load();
         } catch (err) {
-            console.error(err);
+            error.value = (err as Error).message;
         }
     };
 
-    return { players, loading, error, load, create, rename, remove };
-};
+    return {
+        players,
+        loading,
+        error,
+        load,
+        create,
+        rename,
+        remove,
+    };
+});

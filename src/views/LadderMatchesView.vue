@@ -1,26 +1,37 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import MatchForm from '../components/matches/MatchForm.vue';
 import MatchList from '../components/matches/MatchList.vue';
-import { useMatches } from '../composables/useMatches';
-import { usePlayers } from '../composables/usePlayers';
+import { usePlayerStore } from '@src/stores/players.ts';
+import { useMatchStore } from '@src/stores/matches.ts';
+import { storeToRefs } from 'pinia';
+import { useLadderStore } from '@src/stores/ladders.ts';
+
+const ladderStore = useLadderStore();
 
 const route = useRoute();
-const ladderId = route.params.id as string;
 
-const { players, load: loadPlayers } = usePlayers(ladderId);
-const { matches, load: loadMatches, create, remove } = useMatches(ladderId);
+watch(() => route.params.id, (newId) => {
+    ladderStore.ladderId = newId.toString()
+    playerStore.load();
+    matchStore.load();
+})
+const playerStore = usePlayerStore();
+const matchStore = useMatchStore();
+
+const { players } = storeToRefs(playerStore);
+const { matches } = storeToRefs(matchStore);
 
 onMounted(() => {
-    loadPlayers();
-    loadMatches();
+    playerStore.load();
+    matchStore.load();
 });
 </script>
 
 <template>
     <div class="flex flex-col gap-4">
-        <MatchForm :players="players" @submit="create" />
-        <MatchList :matches="matches" :players="players" @remove="remove" />
+        <MatchForm :players="players" @submit="matchStore.create" />
+        <MatchList :matches="matches" :players="players" @remove="matchStore.remove" />
     </div>
 </template>
