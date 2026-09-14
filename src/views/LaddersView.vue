@@ -9,7 +9,7 @@ import { storeToRefs } from 'pinia';
 
 const ladderStore = useLadderStore();
 
-const { ladders, isLoading, loading } = storeToRefs(ladderStore);
+const { ladders, loading } = storeToRefs(ladderStore);
 
 onMounted(ladderStore.load);
 </script>
@@ -19,10 +19,7 @@ onMounted(ladderStore.load);
         <h1 class="text-2xl font-semibold text-slate-900">My ladders</h1>
 
         <LadderForm @submit="ladderStore.create" />
-        <p v-if="isLoading" class="text-sm text-slate-500">
-            {{ isLoading }} - {{ loading }} <br />
-            Loading players...
-        </p>
+        <p v-if="loading" class="text-sm text-slate-500">Loading players...</p>
         <ul v-else-if="ladders.length" class="flex flex-col gap-2">
             <LadderCard
                 v-for="ladder in ladders"

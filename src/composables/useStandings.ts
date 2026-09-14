@@ -46,5 +46,6 @@ export const computeStandings = (
         .map((row, index) => ({ ...row, rank: index + 1 }));
 };
 
-export const useStandings = (players: Ref<Player[]>, matches: Ref<Match[]>) =>
+export const useStandings = (players: Ref<Player[]>, matches: Ref<Match[]>) => {
     computed(() => computeStandings(players.value, matches.value));
+};

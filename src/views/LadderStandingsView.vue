@@ -2,15 +2,16 @@
 import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StandingsTable from '../components/standings/StandingsTable.vue';
-import { useStandings } from '../composables/useStandings';
 import { useMatchStore } from '@src/stores/matches.ts';
 import { usePlayerStore } from '@src/stores/players.ts';
 import { useLadderStore } from '@src/stores/ladders.ts';
+import { useStandingStore } from '@src/stores/standing.ts';
 
 import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 
+const standingStore = useStandingStore();
 const ladderStore = useLadderStore();
 const matchStore = useMatchStore();
 const playerStore = usePlayerStore();
@@ -29,13 +30,9 @@ const {
     error: playersError,
     loading: playersLoading,
 } = storeToRefs(playerStore);
-const {
-    matches,
-    error: matchesError,
-    loading: matchesLoading,
-} = storeToRefs(matchStore);
-
-const standings = useStandings(players, matches);
+const { error: matchesError, loading: matchesLoading } =
+    storeToRefs(matchStore);
+const { standings } = storeToRefs(standingStore);
 
 const loading = () => playersLoading.value || matchesLoading.value;
 
@@ -43,6 +40,7 @@ onMounted(() => {
     if (route.params.id) {
         ladderStore.ladderId = route.params.id.toString();
         playerStore.load();
+        matchStore.load();
     }
 });
 </script>

@@ -12,16 +12,19 @@ const ladderStore = useLadderStore();
 
 const route = useRoute();
 
-watch(() => route.params.id, (newId) => {
-    ladderStore.ladderId = newId.toString()
-    playerStore.load();
-    matchStore.load();
-})
+watch(
+    () => route.params.id,
+    (newId) => {
+        ladderStore.ladderId = newId.toString();
+        playerStore.load();
+        matchStore.load();
+    },
+);
 const playerStore = usePlayerStore();
 const matchStore = useMatchStore();
 
 const { players } = storeToRefs(playerStore);
-const { matches } = storeToRefs(matchStore);
+const { matches, loading } = storeToRefs(matchStore);
 
 onMounted(() => {
     playerStore.load();
@@ -32,6 +35,19 @@ onMounted(() => {
 <template>
     <div class="flex flex-col gap-4">
         <MatchForm :players="players" @submit="matchStore.create" />
-        <MatchList :matches="matches" :players="players" @remove="matchStore.remove" />
+        <p v-if="loading" class="text-sm text-slate-500">Loading matches...</p>
+
+        <MatchList
+            v-else-if="matches.length"
+            :matches="matches"
+            :players="players"
+            @remove="matchStore.remove"
+        />
+
+        <EmptyState
+            v-else
+            title="No matches yet"
+            description="Create your first matches."
+        />
     </div>
 </template>
