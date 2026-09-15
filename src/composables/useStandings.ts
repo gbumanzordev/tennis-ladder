@@ -26,9 +26,7 @@ export const computeStandings = (
             played,
             won,
             lost,
-            winPercent: isNaN(Math.round((won / played) * 100))
-                ? 0
-                : Math.round((won / played) * 100),
+            winPercent: played === 0 ? 0 : Math.round((won / played) * 100),
             points: won * POINTS_PER_WIN + lost * POINTS_PER_LOSS,
         };
     });
@@ -46,6 +44,5 @@ export const computeStandings = (
         .map((row, index) => ({ ...row, rank: index + 1 }));
 };
 
-export const useStandings = (players: Ref<Player[]>, matches: Ref<Match[]>) => {
+export const useStandings = (players: Ref<Player[]>, matches: Ref<Match[]>) =>
     computed(() => computeStandings(players.value, matches.value));
-};

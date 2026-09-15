@@ -59,8 +59,7 @@ watch(
 const onSubmit = () => {
     validationError.value = null;
     if (playerAId.value === playerBId.value) {
-        validationError.value =
-            'choose diferent players. *player A is the same player A';
+        validationError.value = 'Player A and Player B have to be different';
         return;
     }
     if (
@@ -85,17 +84,17 @@ const onSubmit = () => {
 </script>
 
 <template>
-    <p
-        v-if="validationError"
-        role="alert"
-        class="rounded-md bg-red-50 p-3 text-sm text-red-700"
-    >
-        {{ validationError }}
-    </p>
     <form
         class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-5"
         @submit.prevent="onSubmit"
     >
+        <p
+            v-if="validationError"
+            role="alert"
+            class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+        >
+            {{ validationError }}
+        </p>
         <BaseSelect
             v-model="playerAId"
             label="Player A"
@@ -125,7 +124,8 @@ const onSubmit = () => {
                 type="button"
                 variant="ghost"
                 @click="emit('cancel')"
-            ></BaseButton>
+                >Cancel</BaseButton
+            >
         </div>
     </form>
 </template>

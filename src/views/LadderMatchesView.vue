@@ -7,10 +7,17 @@ import { usePlayerStore } from '@src/stores/players.ts';
 import { useMatchStore } from '@src/stores/matches.ts';
 import { storeToRefs } from 'pinia';
 import { useLadderStore } from '@src/stores/ladders.ts';
+import EmptyState from '@src/components/ui/EmptyState.vue';
 
 const ladderStore = useLadderStore();
 
 const route = useRoute();
+
+const playerStore = usePlayerStore();
+const matchStore = useMatchStore();
+
+const { players } = storeToRefs(playerStore);
+const { matches, loading } = storeToRefs(matchStore);
 
 watch(
     () => route.params.id,
@@ -20,16 +27,8 @@ watch(
         matchStore.load();
     },
 );
-const playerStore = usePlayerStore();
-const matchStore = useMatchStore();
 
-const { players } = storeToRefs(playerStore);
-const { matches, loading } = storeToRefs(matchStore);
-
-onMounted(() => {
-    playerStore.load();
-    matchStore.load();
-});
+onMounted([playerStore.load, matchStore.load]);
 </script>
 
 <template>

@@ -4,7 +4,7 @@ import type { Match, NewMatch } from '../types/domain';
 import { useLadderStore } from '@src/stores/ladders';
 import { defineStore, storeToRefs } from 'pinia';
 
-export const useMatchStore = defineStore('match', () => {
+export const useMatchStore = defineStore('matches', () => {
     const ladderStore = useLadderStore();
     const { ladderId } = storeToRefs(ladderStore);
     const matches = ref<Match[]>([]);
@@ -31,6 +31,8 @@ export const useMatchStore = defineStore('match', () => {
             await load();
         } catch (err) {
             error.value = (err as Error).message;
+        } finally {
+            loading.value = false;
         }
     };
 
@@ -42,6 +44,8 @@ export const useMatchStore = defineStore('match', () => {
             await load();
         } catch (err) {
             error.value = (err as Error).message;
+        } finally {
+            loading.value = false;
         }
     };
 
@@ -53,6 +57,8 @@ export const useMatchStore = defineStore('match', () => {
             await load();
         } catch (err) {
             error.value = (err as Error).message;
+        } finally {
+            loading.value = false;
         }
     };
 

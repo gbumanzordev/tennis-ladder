@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StandingsTable from '../components/standings/StandingsTable.vue';
 import { useMatchStore } from '@src/stores/matches.ts';
@@ -34,7 +34,7 @@ const { error: matchesError, loading: matchesLoading } =
     storeToRefs(matchStore);
 const { standings } = storeToRefs(standingStore);
 
-const loading = () => playersLoading.value || matchesLoading.value;
+const loading = computed(() => playersLoading.value || matchesLoading.value);
 
 onMounted(() => {
     if (route.params.id) {
@@ -53,7 +53,7 @@ onMounted(() => {
     >
         {{ playersError ?? matchesError }}
     </p>
-    <p v-if="loading()" class="text-sm text-slate-500">Loading standing...</p>
+    <p v-if="loading" class="text-sm text-slate-500">Loading standing...</p>
     <EmptyState
         v-else-if="players.length === 0"
         title="No players yet"

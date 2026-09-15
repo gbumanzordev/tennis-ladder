@@ -1,6 +1,9 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { Session, User } from '@supabase/supabase-js';
+import { useLadderStore } from './ladders';
+import { usePlayerStore } from './players';
+import { useMatchStore } from './matches';
 
 import {
     getSession,
@@ -42,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
-    const SignInUser = async (email: string, password: string) => {
+    const signInUser = async (email: string, password: string) => {
         loading.value = true;
 
         try {
@@ -80,6 +83,13 @@ export const useAuthStore = defineStore('auth', () => {
 
             user.value = null;
             session.value = null;
+            const ladderStore = useLadderStore();
+            const playerStore = usePlayerStore();
+            const matches = useMatchStore();
+
+            ladderStore.$reset();
+            playerStore.$reset();
+            matches.$reset();
         } finally {
             loading.value = false;
         }
@@ -100,7 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
         initialized,
         isAuthenticated,
         init,
-        SignInUser,
+        signInUser,
         signUpUser,
         signOutUser,
     };

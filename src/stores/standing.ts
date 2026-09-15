@@ -3,7 +3,7 @@ import { usePlayerStore } from '@src/stores/players';
 import { useMatchStore } from '@src/stores/matches';
 import { defineStore } from 'pinia';
 
-export const useStandingStore = defineStore('stand', () => {
+export const useStandingStore = defineStore('standings', () => {
     const POINTS_PER_WIN = 3;
     const POINTS_PER_LOSS = 1;
     const playerStore = usePlayerStore();
