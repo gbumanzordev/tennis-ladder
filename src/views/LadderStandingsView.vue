@@ -1,63 +1,58 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StandingsTable from '../components/standings/StandingsTable.vue';
-import { useMatchStore } from '@src/stores/matches.ts';
-import { usePlayerStore } from '@src/stores/players.ts';
-import { useLadderStore } from '@src/stores/ladders.ts';
 import { useStandingStore } from '@src/stores/standing.ts';
-
+import { usePlayers } from '@src/services/playerService.ts';
+import { useMatches } from '@src/services/matchService.ts';
 import { storeToRefs } from 'pinia';
+import { useQueryCache } from '@pinia/colada';
+import EmptyState from '@src/components/ui/EmptyState.vue';
 
 const route = useRoute();
 
-const standingStore = useStandingStore();
-const ladderStore = useLadderStore();
-const matchStore = useMatchStore();
-const playerStore = usePlayerStore();
-
-watch(
-    () => route.params.id,
-    (newId) => {
-        ladderStore.ladderId = newId.toString();
-        playerStore.load();
-        matchStore.load();
-    },
-);
-
 const {
-    players,
-    error: playersError,
-    loading: playersLoading,
-} = storeToRefs(playerStore);
-const { error: matchesError, loading: matchesLoading } =
-    storeToRefs(matchStore);
-const { standings } = storeToRefs(standingStore);
+  error: playersError,
+  isLoading: playersLoading,
+  updatePlayers,
+} = usePlayers();
+
+const { error: matchesError, isLoading: matchesLoading } = useMatches();
+
+const queryCache = useQueryCache();
 
 const loading = computed(() => playersLoading.value || matchesLoading.value);
 
-onMounted(() => {
-    if (route.params.id) {
-        ladderStore.ladderId = route.params.id.toString();
-        playerStore.load();
-        matchStore.load();
-    }
+const standingStore = useStandingStore();
+const { standings } = storeToRefs(standingStore);
+
+watch(
+  () => route.params.id,
+  () => {
+    updatePlayers();
+  },
+);
+
+onUnmounted(() => {
+  queryCache.invalidateQueries({ key: ['players', 'matches'] });
 });
 </script>
 
 <template>
-    <p
-        v-if="playersError || matchesError"
-        role="alert"
-        class="rounded-md bg-red-50 p-3 text-sm text-red-700"
-    >
-        {{ playersError ?? matchesError }}
-    </p>
-    <p v-if="loading" class="text-sm text-slate-500">Loading standing...</p>
+  <p
+    v-if="playersError || matchesError"
+    role="alert"
+    class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+  >
+    {{ playersError ?? matchesError }}
+  </p>
+  <p v-if="loading" class="text-sm text-slate-500">Loading standing...</p>
+  <div v-else>
+    <StandingsTable v-if="standings?.values" :rows="standings" />
     <EmptyState
-        v-else-if="players.length === 0"
-        title="No players yet"
-        description="Add the first player"
+      v-else
+      title="No data yet"
+      description="Add the first player and match"
     />
-    <StandingsTable v-else :rows="standings" />
+  </div>
 </template>
