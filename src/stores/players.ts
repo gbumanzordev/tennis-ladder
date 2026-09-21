@@ -2,9 +2,9 @@ import { ref } from 'vue';
 import * as playersApi from '../api/players';
 import type { Player } from '../types/domain';
 import { useLadderStore } from '@src/stores/ladders';
-import { storeToRefs } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 
-export const usePlayers = () => {
+export const usePlayerStore = defineStore('players', () => {
   const ladderStore = useLadderStore();
   const { ladderId } = storeToRefs(ladderStore);
   const players = ref<Player[]>([]);
@@ -18,39 +18,55 @@ export const usePlayers = () => {
       players.value = await playersApi.listByLadder(ladderId.value);
     } catch (err) {
       error.value = (err as Error).message;
-      console.error(err);
     } finally {
       loading.value = false;
     }
   };
 
   const create = async (name: string) => {
-    console.log('create');
+    loading.value = true;
     try {
       await playersApi.create(ladderId.value, name);
       await load();
     } catch (err) {
-      console.error(err);
+      error.value = (err as Error).message;
+    } finally {
+      loading.value = false;
     }
   };
 
   const rename = async (id: string, name: string) => {
+    loading.value = true;
+
     try {
       await playersApi.rename(id, name);
       await load();
     } catch (err) {
-      console.error(err);
+      error.value = (err as Error).message;
+    } finally {
+      loading.value = false;
     }
   };
 
   const remove = async (id: string) => {
+    loading.value = true;
     try {
       await playersApi.removeAt(id);
       await load();
     } catch (err) {
-      console.error(err);
+      error.value = (err as Error).message;
+    } finally {
+      loading.value = false;
     }
   };
 
-  return { players, loading, error, load, create, rename, remove };
-};
+  return {
+    players,
+    loading,
+    error,
+    load,
+    create,
+    rename,
+    remove,
+  };
+});

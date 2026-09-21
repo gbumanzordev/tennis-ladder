@@ -1,25 +1,58 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StandingsTable from '../components/standings/StandingsTable.vue';
-import { useMatches } from '../composables/useMatches';
-import { usePlayers } from '../composables/usePlayers';
-import { useStandings } from '../composables/useStandings';
+import { useStandingStore } from '@src/stores/standing.ts';
+import { usePlayers } from '@src/services/playerService.ts';
+import { useMatches } from '@src/services/matchService.ts';
+import { storeToRefs } from 'pinia';
+import { useQueryCache } from '@pinia/colada';
+import EmptyState from '@src/components/ui/EmptyState.vue';
 
 const route = useRoute();
-const ladderId = route.params.id as string;
 
-const { players, load: loadPlayers } = usePlayers(ladderId);
-const { matches, load: loadMatches } = useMatches(ladderId);
+const {
+  error: playersError,
+  isLoading: playersLoading,
+  updatePlayers,
+} = usePlayers();
 
-const standings = useStandings(players, matches);
+const { error: matchesError, isLoading: matchesLoading } = useMatches();
 
-onMounted(() => {
-    loadPlayers();
-    loadMatches();
+const queryCache = useQueryCache();
+
+const loading = computed(() => playersLoading.value || matchesLoading.value);
+
+const standingStore = useStandingStore();
+const { standings } = storeToRefs(standingStore);
+
+watch(
+  () => route.params.id,
+  () => {
+    updatePlayers();
+  },
+);
+
+onUnmounted(() => {
+  queryCache.invalidateQueries({ key: ['players', 'matches'] });
 });
 </script>
 
 <template>
-    <StandingsTable :rows="standings" />
+  <p
+    v-if="playersError || matchesError"
+    role="alert"
+    class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+  >
+    {{ playersError ?? matchesError }}
+  </p>
+  <p v-if="loading" class="text-sm text-slate-500">Loading standing...</p>
+  <div v-else>
+    <StandingsTable v-if="standings?.values" :rows="standings" />
+    <EmptyState
+      v-else
+      title="No data yet"
+      description="Add the first player and match"
+    />
+  </div>
 </template>
